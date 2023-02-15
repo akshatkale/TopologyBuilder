@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+</div>
+
+<style>
+    #div1 {
+        width: 750px;
+        height: 100px;
+        padding: 5px;
+        border: 1px solid #aaaaaa;
+    }
+
+    #div2 {
+        width: 750px;
+        height: 100px;
+        padding: 5px;
+        border: 0px solid #aaaaaa;
+    }
+</style>
+
+<script>
+    function allowDrop(ev) {
+        ev.preventDefault();
+        }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("text");
+        ev.target.appendChild(document.getElementById(data));
+    }
+</script>
+
+<p>vWan Resources into the rectangle to generate topology:</p>
+
+<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)">
+<br>
+<img id="wan" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+<img id="hub" src="./assets/hub.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+<img id="vng" src="./assets/vng.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+<img id="conn" src="./assets/conn.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+<img id="site" src="./assets/site.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+</div>
+
+<br>
+<br>
+<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
+<div id="ts-example">
+    <br />
+    <button type="button" class="btn btn-primary btn-md" onclick="TSButton()">
+        Deploy Topology
+    </button>
+</div>
