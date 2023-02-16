@@ -31,16 +31,33 @@
         ev.dataTransfer.setData("text", ev.target.id);
     }
 
-    function drop(ev) {
-        ev.preventDefault();
-        var data = ev.dataTransfer.getData("text");
-        ev.target.appendChild(document.getElementById(data));
+    function drop(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        if (event.target.nodeName !== "IMG")
+        {
+            event.target.appendChild(document.getElementById(data));
+
+            document.getElementById("demo").innerHTML = document.getElementById(data).id + " was added to the topology.";
+        }
+    }
+
+    function remove(event)
+    {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        if (event.target.nodeName !== "IMG")
+        {
+            event.target.appendChild(document.getElementById(data));
+
+            document.getElementById("demo").innerHTML = document.getElementById(data).id + " was removed from the topology.";
+        }
     }
 </script>
 
 <p>vWan Resources into the rectangle to generate topology:</p>
 
-<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)">
+<div id="div2" ondrop="remove(event)" ondragover="allowDrop(event)">
 <br>
 <img id="wan" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
 <img id="hub" src="./assets/hub.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
@@ -52,6 +69,10 @@
 <br>
 <br>
 <div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
+<br>
+<p id="demo"></p>
+<br>
 
 <div id="ts-example">
     <br />
