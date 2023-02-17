@@ -35,64 +35,43 @@
         padding-left: 10%;
     }
 
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
 
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/leader-line@1.0.5/leader-line.min.js"></script>
-
-<div id="start">start</div>
-<div id="end">end</div>
-
-
-
-<script>
-    function inputResourceName(data) {
-        let resourceName = prompt("Please enter Resource Name:");
-        if (resourceName != null) {
-            ResourceNameMap.set(document.getElementById(data).id, resourceName);
-        }
-    }
-
-    function allowDrop(ev) {
-        ev.preventDefault();
-    }
-
-    function drag(ev) {
-        ev.dataTransfer.setData("text", ev.target.id);
-    }
-
-    function drop(event) {
-        event.preventDefault();
-        var data = event.dataTransfer.getData("text");
-        if (event.target.nodeName !== "IMG")
-        {
-            event.srcElement.appendChild(document.getElementById(data));
-            event.target.appendChild(document.getElementById(data));
-            document.getElementById("wanholder").innerHTML = '<img id="wan1" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">';
-            document.getElementById("demo").innerHTML = document.getElementById(data).id + " was added to the topology.";
-
-            /*
-            var line = new LeaderLine(
-                document.getElementById('wan'),
-                document.getElementById(data));
-                */
-        }
-    }
-
-    function remove(event)
-    {
-        event.preventDefault();
-        var data = event.dataTransfer.getData("text");
-        if (event.target.nodeName !== "IMG")
-        {
-            event.target.appendChild(document.getElementById(data));
-
-            document.getElementById("demo").innerHTML = document.getElementById(data).id + " was removed from the topology.";
-
-            line.remove();
-        }
-    }
-</script>
 
 <p>vWan Resources into the rectangle to generate topology:</p>
 
@@ -113,9 +92,25 @@
                         <div id="wanholder">
                             <img id="wan" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
                         </div>
+                        <div id="myModal" class="modal">
+                            <div class="modal-content">
+                                <span class="close">&times;</span>
+                                <div id="wanjson">
+
+                                </div>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <img id="hub" src="./assets/hub.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+                        <div id="myModal" class="modal">
+                            <div class="modal-content">
+                                <span class="close">&times;</span>
+                                <div id="hubjson">
+
+                                </div>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <img id="vng" src="./assets/vng.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
@@ -172,4 +167,88 @@
         document.getElementById('wan'),
         document.getElementById('hub'));
 
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/leader-line@1.0.5/leader-line.min.js"></script>
+
+<div id="start">start</div>
+<div id="end">end</div>
+<script type="text/javascript" src="template_vwan.json"></script>
+<script>
+    function inputResourceName(data) {
+        let resourceName = prompt("Please enter Resource Name:");
+        if (resourceName != null) {
+            ResourceNameMap.set(document.getElementById(data).id, resourceName);
+        }
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        if (event.target.nodeName !== "IMG") {
+            event.srcElement.appendChild(document.getElementById(data));
+            event.target.appendChild(document.getElementById(data));
+            document.getElementById("wanholder").innerHTML = '<img id="wan1" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">';
+            document.getElementById("demo").innerHTML = document.getElementById(data).id + " was added to the topology.";
+
+            /*
+            var line = new LeaderLine(
+                document.getElementById('wan'),
+                document.getElementById(data));
+                */
+        }
+    }
+
+    function remove(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        if (event.target.nodeName !== "IMG") {
+            event.target.appendChild(document.getElementById(data));
+
+            document.getElementById("demo").innerHTML = document.getElementById(data).id + " was removed from the topology.";
+
+            line.remove();
+        }
+    }
+
+    var modal = document.getElementById("myModal");
+    var btn = document.getElementById("wanholder");
+    var span = document.getElementsByClassName("close")[0];
+    btn.onclick = function () {
+        modal.style.display = "block";
+        load();
+    }
+
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    var hubbtn = document.getElementById("hub");
+    hubbtn.onclick = function () {
+        modal.style.display = "block";
+        load();
+    }
+
+     function load() {
+        var mydata = JSON.parse(data);
+        var div = document.getElementById('wanjson');
+
+        for (var i = 0; i < mydata.length; i++) {
+            div.innerHTML = div.innerHTML + "<p class='inner' id=" + i + ">" + mydata[i].name + "</p>" + "<br>";
+        }
+     }
 </script>
