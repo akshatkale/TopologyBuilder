@@ -114,24 +114,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\akale\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\nuget": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\akale\\source\\repos\\Hackathon-topologyBuilder\\Hackathon-topologyBuilder\\Hackathon-topologyBuilder.csproj",
+      "projectUniqueName": "C:\\Users\\vragireddy\\source\\TopologyBuilder\\Hackathon-topologyBuilder\\Hackathon-topologyBuilder.csproj",
       "projectName": "Hackathon-topologyBuilder",
-      "projectPath": "C:\\Users\\akale\\source\\repos\\Hackathon-topologyBuilder\\Hackathon-topologyBuilder\\Hackathon-topologyBuilder.csproj",
-      "packagesPath": "C:\\Users\\akale\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\akale\\source\\repos\\Hackathon-topologyBuilder\\Hackathon-topologyBuilder\\obj\\",
+      "projectPath": "C:\\Users\\vragireddy\\source\\TopologyBuilder\\Hackathon-topologyBuilder\\Hackathon-topologyBuilder.csproj",
+      "packagesPath": "C:\\nuget",
+      "outputPath": "C:\\Users\\vragireddy\\source\\TopologyBuilder\\Hackathon-topologyBuilder\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\akale\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\vragireddy\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -183,7 +178,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.102\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
       }
     }
   }

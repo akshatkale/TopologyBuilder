@@ -11,3 +11,7 @@ function readJsonTemplateAndUpdateFields(inputFilePath: string, outputFilePath: 
     fs.writeFileSync(outputFilePath, JSON.stringify(inputJson));
 }
 
+readJsonTemplateAndUpdateFields('/DefaultTemplates/input.json', 'output.json', [
+    { name: 'New Name', age: 25 },
+    { name1: 'New Name', age: 25 },
+]);

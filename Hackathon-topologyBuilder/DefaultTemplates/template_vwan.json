@@ -3,7 +3,18 @@
     "contentVersion": "1.0.0.0",
     "parameters": {},
     "resources": [
-        {
+      {
+          "apiVersion": "2019-09-01",
+          "location": "eastus2",
+          "name": "vragireddy_test",
+          "properties": {
+            "virtualHubs": [],
+            "vpnSites": [],
+            "type": "Standard"
+          },
+          "type": "Microsoft.Network/virtualWans"
+      }, 
+      {
             "type": "Microsoft.Network/virtualHubs",
             "apiVersion": "2022-07-01",
             "name": "vragireddy_test_hub",
