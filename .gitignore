@@ -1,4 +1,4 @@
-.vs/
-Hackathon-topologyBuilder/bin/
-Hackathon-topologyBuilder/obj/
+.vs/*
+Hackathon-topologyBuilder/bin/*
+Hackathon-topologyBuilder/obj/*
 
