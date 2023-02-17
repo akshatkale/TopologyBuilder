@@ -1,12 +1,4 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-</div>
-
-<style>
+﻿<style>
      #contents {
         display: flex;
         flex-direction: row;
@@ -14,10 +6,10 @@
     }
 
     #canvas {
-        width: 750px;
-        height: 300px;
+        width: 1400px;
+        height: 650px;
         padding: 5px;
-        border: 1px solid #aaaaaa;
+        border: 2px inset #aaaaaa;
     }
 
     #stage {
@@ -35,17 +27,78 @@
         padding-left: 10%;
     }
 
+    .canvasblock {
+        width: 750px;
+        height: 300px;
+        z-index: 15;
+        background-color: #ffffff;
+        text-align: center;
+        border: 1px solid #d3d3d3;
+    }
 
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/leader-line@1.0.5/leader-line.min.js"></script>
 
-<div id="start">start</div>
-<div id="end">end</div>
+<body>
+
+	<div id="stage">
+		<!--ondrop="remove(event)" ondragover="allowDrop(event)"> -->
+		<table id="StageTable">
+			<tr>
+				<td>Virtual WAN</td>
+				<td>Virtual Hub</td>
+				<td>VNG</td>
+				<td>Connection</td>
+				<td>Site</td>
+				<td rowspan="2">
+					<div id="inputform">
+						<form id="formid" action="" onsubmit="submitForm()">
+							<label for="sid">Subscription id:</label>
+							<input type="text" id="sid" name="sid"><br><br>
+							<label for="rg">Resource group:</label>
+							<input type="text" id="rg" name="rg"><br><br>
+						</form>
+					</div>
+				</td>
+				<td rowspan="2">
+					<button type="button" class="btn btn-primary btn-md" onclick="TSButton()">
+						Deploy Topology
+					</button>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div id="wanholder">
+						<img id="wan" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+					</div>
+				</td>
+				<td>
+					<img id="hub" src="./assets/hub.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+				</td>
+				<td>
+					<img id="vng" src="./assets/vng.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+				</td>
+				<td>
+					<img id="conn" src="./assets/conn.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+				</td>
+				<td>
+					<img id="site" src="./assets/site.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+				</td>
+			</tr>
+		</table>
+
+	</div>
+
+	<div id="canvas" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
+</body>
 
 
 
 <script>
+
+    //var line = new LeaderLine(document.getElementById('wan'), document.getElementById('hub'));
     function inputResourceName(data) {
         let resourceName = prompt("Please enter Resource Name:");
         if (resourceName != null) {
@@ -58,16 +111,23 @@
     }
 
     function drag(ev) {
+        console.log("Drag target:" + ev.target.id);
         ev.dataTransfer.setData("text", ev.target.id);
     }
 
     function drop(event) {
         event.preventDefault();
         var data = event.dataTransfer.getData("text");
-        if (event.target.nodeName !== "IMG")
-        {
-            event.srcElement.appendChild(document.getElementById(data));
-            event.target.appendChild(document.getElementById(data));
+        console.log("Drag target:" + event.target.nodeName);
+        if (event.target.nodeName !== "IMG") {
+            //event.srcElement.appendChild(document.getElementById(data)); //didnt work
+            let div = document.createElement('div');
+            div.draggable = "true";
+            div.id="wandiv1";
+            div.className="canvasblock";
+            div.innerHTML = '<p>VirtualWan</p><img id="wan1" src="./assets/wan.png"" width="50" height="50">';
+            event.target.appendChild(div);
+            //event.target.appendChild(document.getElementById(data));
             document.getElementById("wanholder").innerHTML = '<img id="wan1" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">';
             document.getElementById("demo").innerHTML = document.getElementById(data).id + " was added to the topology.";
 
@@ -79,12 +139,10 @@
         }
     }
 
-    function remove(event)
-    {
+    function remove(event) {
         event.preventDefault();
         var data = event.dataTransfer.getData("text");
-        if (event.target.nodeName !== "IMG")
-        {
+        if (event.target.nodeName !== "IMG") {
             event.target.appendChild(document.getElementById(data));
 
             document.getElementById("demo").innerHTML = document.getElementById(data).id + " was removed from the topology.";
@@ -92,84 +150,48 @@
             line.remove();
         }
     }
-</script>
 
-<p>vWan Resources into the rectangle to generate topology:</p>
 
-<div id="contents">
-    <div>
-        <div id="stage" ondrop="remove(event)" ondragover="allowDrop(event)">
-            <br>
-            <table id="StageTable">
-                <tr>
-                    <td>Virtual WAN</td>
-                    <td>Virtual Hub</td>
-                    <td>VNG</td>
-                    <td>Connection</td>
-                    <td>Site</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div id="wanholder">
-                            <img id="wan" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-                        </div>
-                    </td>
-                    <td>
-                        <img id="hub" src="./assets/hub.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-                    </td>
-                    <td>
-                        <img id="vng" src="./assets/vng.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-                    </td>
-                    <td>
-                        <img id="conn" src="./assets/conn.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-                    </td>
-                    <td>
-                        <img id="site" src="./assets/site.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-                    </td>
-                </tr>
-            </table>
-            <!--
-            <img id="wan" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-            <img id="hub" src="./assets/hub.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-            <img id="vng" src="./assets/vng.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-            <img id="conn" src="./assets/conn.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-            <img id="site" src="./assets/site.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-                -->
-        </div>
-        <br>
-        <br>
-        <div id="canvas" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    dragElement(document.getElementById("wandiv1"));
 
-        <br>
-        <p id="demo"></p>
-        <br>
+    function dragElement(elmnt) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if (document.getElementById(elmnt.id + "header")) {
+            /* if present, the header is where you move the DIV from:*/
+            document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+        } else {
+            /* otherwise, move the DIV from anywhere inside the DIV:*/
+            elmnt.onmousedown = dragMouseDown;
+        }
 
-        <div id="ts-example">
-            <br />
-            <button type="button" class="btn btn-primary btn-md" onclick="TSButton()">
-                Deploy Topology
-            </button>
-        </div>
-    </div>
-    <div>
-        <div id="inputform">
-            <h4>Input your subscription id and resource group name below: </h4>
-            <div>
-                <form id="formid" action="" onsubmit="submitForm()">
-                    <label for="sid">Subscription id:</label>
-                    <input type="text" id="sid" name="sid"><br><br>
-                    <label for="rg">Resource group:</label>
-                    <input type="text" id="rg" name="rg"><br><br>
-                    <input type="submit" value="Submit">
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
 
-<script>
-    var line = new LeaderLine(
-        document.getElementById('wan'),
-        document.getElementById('hub'));
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            // set the element's new position:
+            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
 
+        function closeDragElement() {
+            /* stop moving when mouse button is released:*/
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
 </script>
