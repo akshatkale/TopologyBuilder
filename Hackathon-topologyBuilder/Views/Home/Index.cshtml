@@ -42,6 +42,18 @@
         overflow: auto;
     }
 
+ .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
     /* Modal Content/Box */
     .modal-content {
         background-color: #fefefe;
@@ -50,6 +62,20 @@
         border: 1px solid #888;
         width: 80%; /* Could be more or less, depending on screen size */
     }
+    /* The Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
 
 </style>
 
@@ -70,9 +96,9 @@
                     <div id="inputform">
                         <form id="formid" action="" onsubmit="submitForm()">
                             <label for="sid">Subscription id:</label>
-                            <input type="text" id="sid" name="sid"><br><br>
+                            <input type="text" id="sid" name="sid">
                             <label for="rg">Resource group:</label>
-                            <input type="text" id="rg" name="rg"><br><br>
+                            <input type="text" id="rg" name="rg">
                         </form>
                     </div>
                 </td>
@@ -84,21 +110,19 @@
             </tr>
             <tr>
                 <td>
-                    <div id="wanholder">
-                        <img id="wan" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
-                    </div>
+                    <img id="wan" src="./assets/wan.png" width="50" height="50" ondblclick="addcanvasblock('wan')">
                 </td>
                 <td>
-                    <img id="hub" src="./assets/hub.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+                    <img id="hub" src="./assets/hub.png" width="50" height="50" ondblclick="addcanvasblock('hub')">
                 </td>
                 <td>
-                    <img id="vng" src="./assets/vng.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+                    <img id="vng" src="./assets/vng.png" width="50" height="50" ondblclick="addcanvasblock('vng')">
                 </td>
                 <td>
-                    <img id="conn" src="./assets/conn.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+                    <img id="conn" src="./assets/conn.png" width="50" height="50" ondblclick="addcanvasblock('conn')">
                 </td>
                 <td>
-                    <img id="site" src="./assets/site.png" draggable="true" ondragstart="drag(event)" width="50" height="50">
+                    <img id="site" src="./assets/site.png" width="50" height="50" ondblclick="addcanvasblock('site')">
                 </td>
             </tr>
         </table>
@@ -112,6 +136,62 @@
 
 
 <script>
+    var jsondata = {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "resources": [
+            {
+                "apiVersion": "2019-09-01",
+                "location": "eastus2",
+                "name": "vragireddy_test",
+                "properties": {
+                    "virtualHubs": [],
+                    "vpnSites": [],
+                    "type": "Standard"
+                },
+                "type": "Microsoft.Network/virtualWans"
+            },
+            {
+                "type": "Microsoft.Network/virtualHubs",
+                "apiVersion": "2022-07-01",
+                "name": "vragireddy_test_hub",
+                "location": "eastus",
+                "tags": {},
+                "properties": {
+                    "addressPrefix": "10.12.13.0/24",
+                    "virtualWan": {
+                        "id": "/subscriptions/10a8c16e-acc9-4def-867c-a66c3d9238e6/resourceGroups/NaasTestGroup/providers/Microsoft.Network/virtualWans/vragireddy_test"
+                    },
+                    "sku": "Standard",
+                    "virtualRouterAutoScaleConfiguration": {
+                        "minCapacity": 2
+                    },
+                    "hubRoutingPreference": "ExpressRoute"
+                }
+            },
+            {
+                "type": "Microsoft.Network/vpnGateways",
+                "apiVersion": "2022-01-01",
+                "name": "f485e136158d46a68131ac48bc52a14a-eastus-gw",
+                "location": "eastus",
+                "dependsOn": [
+                    "/subscriptions/10a8c16e-acc9-4def-867c-a66c3d9238e6/resourceGroups/NaasTestGroup/providers/Microsoft.Network/virtualHubs/vragireddy_test_hub"
+                ],
+                "properties": {
+                    "vpnGatewayScaleUnit": 1,
+                    "virtualHub": {
+                        "id": "/subscriptions/10a8c16e-acc9-4def-867c-a66c3d9238e6/resourceGroups/NaasTestGroup/providers/Microsoft.Network/virtualHubs/vragireddy_test_hub"
+                    },
+                    "isRoutingPreferenceInternet": false,
+                    "bgpSettings": {
+                        "asn": 65515
+                    }
+                }
+            }
+        ]
+    };
+
     var ResourceNameMap = new Map();
     var dependencyMap = new Map();
     function buildDependency(parent, child) {
@@ -126,7 +206,37 @@
         }
     }
 
+    function addcanvasblock(blocktype) {
+		if (blocktype == "wan" || blocktype == "hub")
+		{
+
+   //         let imageid=blocktype+"1";
+			//let div = document.createElement('div');
+			//div.draggable = "true";
+			//div.id = blocktype + "div1";
+			//div.className = "canvasblock";
+   //         $div.bind("dragstart", function (ev) { drag(ev); });
+   //         div.innerHTML = '<p>Virtual' + blocktype + '</p><img id="' + imageid + '" src="./assets/' + blocktype + '.png"" width="50" height="50">';
+            //$("#canvas").append(div);
+
+            let imageid=blocktype+"1"
+            var group=$(document.createElement('div'));
+            group.attr({ id: blocktype + "div1" });
+            group.attr({draggable: "true"});
+            group.attr({ className: "canvasblock" });
+            //group.addClass('group');
+            group.html('<p>Virtual' + blocktype + '</p><img id="' + imageid + '" src="./assets/' + blocktype + '.png"" width="50" height="50"/><div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span><div id="wanjson"></div></div></div>');
+            group.bind("dragstart", function(ev){drag(ev);});
+            $("#canvas").append(group);
+          
+            //dragElement(document.getElementById(blocktype + "div1"));
+            //dragElement(document.getElementById("wandiv1"));
+		}
+
+    }
+
     function allowDrop(ev) {
+        console.log("allowDrop");
         ev.preventDefault();
     }
 
@@ -136,9 +246,13 @@
     }
 
     function drop(event) {
+        console.log("drop target:" + event.target.nodeName);
+
         event.preventDefault();
         var data = event.dataTransfer.getData("text");
-        console.log("Drag target:" + event.target.nodeName);
+        console.log("data target:" + document.getElementById(data));
+        event.target.appendChild(document.getElementById(data));
+        /*
         if (event.target.nodeName !== "IMG") {
             //event.srcElement.appendChild(document.getElementById(data)); //didnt work
             let div = document.createElement('div');
@@ -151,12 +265,15 @@
             document.getElementById("wanholder").innerHTML = '<img id="wan1" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">';
             document.getElementById("demo").innerHTML = document.getElementById(data).id + " was added to the topology.";
 
-            /*
-            var line = new LeaderLine(
-                document.getElementById('wan'),
-                document.getElementById(data));
-                */
+
         }
+
+        */
+        /*
+    var line = new LeaderLine(
+     document.getElementById('wan'),
+     document.getElementById(data));
+     */
     }
 
     function remove(event) {
@@ -172,7 +289,7 @@
     }
 
 
-    dragElement(document.getElementById("wandiv1"));
+    //dragElement(document.getElementById("wandiv1"));
 
     function dragElement(elmnt) {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -213,5 +330,52 @@
             document.onmouseup = null;
             document.onmousemove = null;
         }
+    }
+
+    function submitForm() {
+        let sid = document.getElementById("sid").value;
+        let rg = document.getElementById("rg").value;
+    }
+
+    function replaceSubscriptionAndResGroups(sid, rg) {
+        let str = jsondata.resources[1].properties.virtualWan.id;
+        const parts = str.split('/');
+        const subscriptionIndex = parts.indexOf('subscriptions');
+        const resourceGroupIndex = parts.indexOf('resourceGroups');
+        parts[subscriptionIndex + 1] = sid;
+        parts[resourceGroupIndex + 1] = rg;
+        let res = parts.join('/');
+        jsondata.resources[1].properties.virtualWan.id = res;
+        jsondata.resources[2].properties.virtualHub.id = res;
+        jsondata.resources[2].dependsOn = [res];
+    }
+
+    var modal = document.getElementById("myModal");
+    var btn = document.getElementById("wan1");
+    var span = document.getElementsByClassName("close")[0];
+    btn.onclick = function () {
+        modal.style.display = "block";
+        load("wanjson");
+    }
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    var hubbtn = document.getElementById("hub");
+    hubbtn.onclick = function () {
+        modal.style.display = "block";
+        load("hubjson");
+    }
+    function load(name) {
+        const params = new URLSearchParams(document.location.search);
+        const s = params.get("sid");
+        const o = params.get("rg");
+        var div = document.getElementById(name);
+        replaceSubscriptionAndResGroups(s, o);
+        div.innerHTML = "<div class='inner'>" + JSON.stringify(jsondata) + "</div>" + "<br>";
     }
 </script>
