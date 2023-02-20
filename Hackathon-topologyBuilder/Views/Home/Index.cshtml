@@ -306,10 +306,12 @@
     function drop(event) {
         console.log("drop target:" + event.target.nodeName);
 
-        event.preventDefault();
-        var data = event.dataTransfer.getData("text");
-        console.log("data target:" + document.getElementById(data));
-        event.target.appendChild(document.getElementById(data));
+		event.preventDefault();
+		var data = event.dataTransfer.getData("text");
+		console.log("data target:" + document.getElementById(data));
+		if (event.target.nodeName !== "DIV") {
+			event.target.appendChild(document.getElementById(data));
+		}
         /*
         if (event.target.nodeName !== "IMG") {
             //event.srcElement.appendChild(document.getElementById(data)); //didnt work
@@ -393,7 +395,14 @@
     function ShowTopology() {
         let sid = document.getElementById("sid").value;
         let rg = document.getElementById("rg").value;
-        //replaceSubscriptionAndResGroups(sid, rg);
+        if (sid=="")
+        {
+            Alert("Subscription Id can't be empty");
+        }
+        if (rg == "") {
+            Alert("Resource group can't be empty");
+        }
+        replaceSubscriptionAndResGroups(sid, rg);
         ShowModal();
     }
 
@@ -432,12 +441,4 @@
         load("hubjson");
     }
     */
-    function load(name) {
-        const params = new URLSearchParams(document.location.search);
-        const s = params.get("sid");
-        const o = params.get("rg");
-        var div = document.getElementById(name);
-
-
-    }
 </script>
