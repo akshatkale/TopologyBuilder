@@ -1,48 +1,58 @@
 ﻿<style>
-    #contents {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-    }
-
     #canvas {
         width: 1400px;
-        height: 650px;
-        padding: 5px;
-        border: 2px inset #aaaaaa;
+        height: 2050px;
         resize: both;
-        overflow: auto;
+        margin-top: 5%;
+        margin-left: 10%;
+        border: 3px inset #aaaaaa;
     }
 
     #stage {
-        width: 750px;
-        height: 100px;
         padding: 5px;
-        border: 0px solid #aaaaaa;
-        resize: both;
-        overflow: auto;
+        top: 10%;
+        left: 0;
+        border: 1px solid #aaaaaa;
+        position: fixed;
     }
 
     #StageTable {
-        border: 1px solid #aaaaaa;
+        border: 0px solid #aaaaaa;
     }
 
-    #inputform {
-        padding-left: 10%;
+	.form-group {
+		border: 1px solid black; /* Change border width and color here */
+	}
+
+	/* the !important declaration is for this snippet, because this snippet include bootstrap after this declarations **/
+	.form-control {
+		border: none !important; /* No border for input */
+		box-shadow: none !important; /* No border for input */
+        width: 150px;
+	}
+
+	.form-control:focus {
+		box-shadow: none !important; /* Remove the blue shining at focus */
+	}
+
+    .imgclass
+    {
+        width: 50px;
+        height: 50px;
     }
 
     .canvasblock {
         width: 750px;
         height: 300px;
-        z-index: 15;
+        border-style: dotted;
         background-color: #ffffff;
         text-align: center;
-        border: 1px solid #d3d3d3;
+        border: 3px solid #d3d3d3;
         resize: both;
         overflow: auto;
     }
 
- .modal {
+    .modal {
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
@@ -82,53 +92,73 @@
 <script src="https://cdn.jsdelivr.net/npm/leader-line@1.0.5/leader-line.min.js"></script>
 
 <body>
+    <nav class="navbar navbar-expand-md fixed-top" style="background-color:#0078d4;">
+		<div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav" >
+				<li class="nav-item active">
+                    <a class="nav-link" href="#" style="color:white;">Topology Builder</a>
+				</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" style="color:white;">Help</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" style="color:white;">Contact us</a>
+                </li>
+			</ul>
+		</div>
+	</nav>
 
     <div id="stage">
         <!--ondrop="remove(event)" ondragover="allowDrop(event)"> -->
         <table id="StageTable">
             <tr>
                 <td>Virtual WAN</td>
-                <td>Virtual Hub</td>
-                <td>VNG</td>
-                <td>Connection</td>
-                <td>Site</td>
-                <td rowspan="2">
-                    <div id="inputform">
-                        <form id="formid" action="" onsubmit="submitForm()">
-                            <label for="sid">Subscription id:</label>
-                            <input type="text" id="sid" name="sid">
-                            <label for="rg">Resource group:</label>
-                            <input type="text" id="rg" name="rg">
-                            <input type="submit" value="Submit">
-                        </form>
-                    </div>
-                </td>
-                <td rowspan="2">
-                    <button type="button" class="btn btn-primary btn-md" onclick="TSButton()">
-                        Deploy Topology
-                    </button>
+                <td>
+                    <img id="wan" src="./assets/wan.png" class="imgclass" ondblclick="addcanvasblock('wan')">
                 </td>
             </tr>
             <tr>
+                <td>Virtual Hub</td>
                 <td>
-                    <img id="wan" src="./assets/wan.png" width="50" height="50" ondblclick="addcanvasblock('wan')">
-                </td>
-                <td>
-                    <img id="hub" src="./assets/hub.png" width="50" height="50" ondblclick="addcanvasblock('hub')">
-                </td>
-                <td>
-                    <img id="vng" src="./assets/vng.png" width="50" height="50" ondblclick="addcanvasblock('vng')">
-                </td>
-                <td>
-                    <img id="conn" src="./assets/conn.png" width="50" height="50" ondblclick="addcanvasblock('conn')">
-                </td>
-                <td>
-                    <img id="site" src="./assets/site.png" width="50" height="50" ondblclick="addcanvasblock('site')">
+                    <img id="hub" src="./assets/hub.png" class="imgclass" ondblclick="addcanvasblock('hub')">
                 </td>
             </tr>
-        </table>
-
+            <tr>
+                <td>VNG</td>
+                <td>
+                    <img id="vng" src="./assets/vng.png" class="imgclass" ondblclick="addcanvasblock('vng')">
+                </td>
+            </tr>
+			<tr>
+				<td>Connection</td>
+				<td>
+                    <img id="conn" src="./assets/conn.png" class="imgclass" ondblclick="addcanvasblock('conn')">
+				</td>
+			</tr>
+            <tr>
+                <td>Site</td>
+                <td>
+                    <img id="site" src="./assets/site.png" class="imgclass" ondblclick="addcanvasblock('site')">
+                </td>
+            </tr>
+		</table>
+        <br />
+		<form id="formid" action="" onsubmit="submitForm()">
+			<div class="form-group">
+				<input type="text" class="form-control" id="sid" name="sid" placeholder="Subscriptionid" required />
+			</div>
+			<div class="form-group">
+				<input type="text" class="form-control" id="rg" name="rg" placeholder="Resourcegroup" required />
+			</div>
+			<input type="submit" class="btn btn-primary btn-md" value="Compute Template" />
+		</form>
+        <br/>
+        <br/>
+		<button type="button" class="btn btn-primary btn-md" onclick="TSButton()">
+			Deploy Topology
+		</button>
     </div>
+
 
     <div id="canvas" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
 
@@ -137,6 +167,8 @@
 
 
 <script>
+
+
     var jsondata = {
         "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
         "contentVersion": "1.0.0.0",
@@ -208,25 +240,17 @@
     }
 
     function addcanvasblock(blocktype) {
-		if (blocktype == "wan" || blocktype == "hub")
+		if (blocktype == "Wan" || blocktype == "Hub")
 		{
-
-   //         let imageid=blocktype+"1";
-			//let div = document.createElement('div');
-			//div.draggable = "true";
-			//div.id = blocktype + "div1";
-			//div.className = "canvasblock";
-   //         $div.bind("dragstart", function (ev) { drag(ev); });
-   //         div.innerHTML = '<p>Virtual' + blocktype + '</p><img id="' + imageid + '" src="./assets/' + blocktype + '.png"" width="50" height="50">';
-            //$("#canvas").append(div);
-
             let imageid=blocktype+"1"
             var group=$(document.createElement('div'));
             group.attr({ id: blocktype + "div1" });
             group.attr({draggable: "true"});
             group.attr({ className: "canvasblock" });
             //group.addClass('group');
-            group.html('<p>Virtual' + blocktype + '</p><img id="' + imageid + '" src="./assets/' + blocktype + '.png"" width="50" height="50"/><div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span><div id="wanjson"></div></div></div>');
+            let imgdiv = '<div>Virtual' + blocktype + '<img id="' + imageid + '" src="./assets/' + blocktype + '.png" class="imgclass"/></div>';
+            imgdiv += '<div id="myModal" class="modal" > <div class="modal-content" > <span class="close" >& times; </span><div id="' + blocktype + 'json"></div > </div></div > ';
+            group.html(imgdiv);
             group.bind("dragstart", function(ev){drag(ev);});
             $("#canvas").append(group);
           
@@ -243,6 +267,7 @@
 
     function drag(ev) {
         console.log("Drag target:" + ev.target.id);
+        ev.dataTransfer = ev.originalEvent.dataTransfer;
         ev.dataTransfer.setData("text", ev.target.id);
     }
 
