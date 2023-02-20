@@ -42,7 +42,7 @@
     }
 
     .canvasblock {
-        width: 750px;
+        width: 300px;
         height: 300px;
         border-style: dotted;
         background-color: #ffffff;
@@ -228,6 +228,8 @@
 
     var modal = document.getElementById('modal');
     var shade = document.getElementById('shade');
+    var hubtotal = 0;
+    var wantotal = 0;
     document.getElementById('close').onclick = function () {
         modal.style.display = shade.style.display = 'none';
     };
@@ -236,7 +238,6 @@
         let jsonarea= document.getElementById("jsonarea");
         jsonarea.value = JSON.stringify(jsondata, undefined, 4);
         modal.style.display = shade.style.display = 'block';
-        //modal.textarea = "<div class='inner'>" + JSON.stringify(jsondata) + "</div>" + "<br>";
     };
 
     var ResourceNameMap = new Map();
@@ -254,24 +255,31 @@
     }
 
     function addcanvasblock(blocktype) {
+        resourcenum = 0;
+        if (blocktype == "Wan")
+        {
+            resourcenum = ++wantotal;
+        }
+        if (blocktype == "Hub")
+        {
+            resourcenum = ++hubtotal;
+        }
+
 		if (blocktype == "Wan" || blocktype == "Hub")
 		{
-            let imageid=blocktype+"1"
+            let imageid = blocktype + resourcenum
+            let strname = 'Virtual' + blocktype + resourcenum ;
+            let divname = blocktype + "div" + resourcenum;
             var group=$(document.createElement('div'));
-            group.attr({ id: blocktype + "div1" });
+            group.attr({ id: blocktype + "div" + resourcenum });
             group.attr({draggable: "true"});
             group.attr({ class : "canvasblock" });
-            //group.addClass('group');
-            let imgdiv = '<div>Virtual' + blocktype + '<img id="' + imageid + '" src="./assets/' + blocktype + '.png" draggable="false" (dragstart)="false;" class="imgclass"/></div>';
-            //imgdiv += '<div id="myModal" class="modal" > <div class="modal-content" > <span class="close" >& times; </span><div id="' + blocktype + 'json"></div > </div></div > ';
+            let imgdiv = '<div>' + strname + '<img id="' + imageid + '" src="./assets/' + blocktype + '.png" draggable="false" (dragstart)="false;" class="imgclass"/></div>';
             group.html(imgdiv);
             group.bind("dragstart", function(ev){drag(ev);});
             $("#canvas").append(group);
-          
-            //dragElement(document.getElementById(blocktype + "div1"));
-            //dragElement(document.getElementById("wandiv1"));
+            //dragElement(document.getElementById(divname));
 		}
-
     }
 
     function allowDrop(ev) {
@@ -295,23 +303,6 @@
 			event.target.appendChild(document.getElementById(data));
 		}
         /*
-        if (event.target.nodeName !== "IMG") {
-            //event.srcElement.appendChild(document.getElementById(data)); //didnt work
-            let div = document.createElement('div');
-            div.draggable = "true";
-            div.id = "wandiv1";
-            div.className = "canvasblock";
-            div.innerHTML = '<p>VirtualWan</p><img id="wan1" src="./assets/wan.png"" width="50" height="50">';
-            event.target.appendChild(div);
-            //event.target.appendChild(document.getElementById(data));
-            document.getElementById("wanholder").innerHTML = '<img id="wan1" src="./assets/wan.png" draggable="true" ondragstart="drag(event)" width="50" height="50">';
-            document.getElementById("demo").innerHTML = document.getElementById(data).id + " was added to the topology.";
-
-
-        }
-
-        */
-        /*
     var line = new LeaderLine(
      document.getElementById('wan'),
      document.getElementById(data));
@@ -331,8 +322,7 @@
     }
 
 
-    //dragElement(document.getElementById("wandiv1"));
-
+    
     function dragElement(elmnt) {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         if (document.getElementById(elmnt.id + "header")) {
