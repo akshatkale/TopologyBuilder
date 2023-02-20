@@ -52,19 +52,7 @@
         overflow: auto;
     }
 
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    }
-    
+   
 
     #shade,
     #modal {
@@ -83,9 +71,10 @@
     #modal {
         position: fixed;
         z-index: 101;
-        top: 33%;
-        left: 25%;
-        width: 50%;
+        top: 10%;
+        left: 10%;
+        width: 30%; /* Full width */
+        height: 30%; /* Full height */
     }
 
     #shade {
@@ -149,18 +138,20 @@
             </tr>
 		</table>
         <br />
-		<form id="formid" action="" onsubmit="submitForm()">
-			<div class="form-group">
+        	<div class="form-group">
 				<input type="text" class="form-control" id="sid" name="sid" placeholder="Subscription Id" required />
 			</div>
 			<div class="form-group">
 				<input type="text" class="form-control" id="rg" name="rg" placeholder="Resource Group" required />
 			</div>
-			<input type="submit" class="btn btn-primary btn-md" value="Compute Template" />
-		</form>
         <br/>
         <br/>
-		<button type="button" class="btn btn-primary btn-md" onclick="TSButton()">
+        <button type="button" class="btn btn-primary btn-md" onclick="ShowTopology()">
+            Show Topology
+        </button>
+        <br/>
+		<br />
+        <button type="button" class="btn btn-primary btn-md" onclick="DeployTopology()">
 			Deploy Topology
 		</button>
     </div>
@@ -168,43 +159,18 @@
 
     <div id="canvas" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
     <div id="shade"></div>
+
     <div id="modal">
-        <textarea rows="5" cols="25"></textarea>
-        <button id="close">Close</button>
+        <button id="close" style="top:70%;right:70%">X</button>
+        <textarea id="jsonarea" rows="20" cols="100"></textarea>
+        <br />
     </div>
-    <p>
-        <button id="start">Start</button>
-    </p>
 
 </body>
 
 
 
 <script>
-    var modal = document.getElementById('modal');
-    var shade = document.getElementById('shade');
-    document.getElementById('start').onclick = function () {
-        modal.style.display = shade.style.display = 'block';
-    };
-    document.getElementById('close').onclick = function () {
-        modal.style.display = shade.style.display = 'none';
-    };
-
-    // This code is a workaround for IE6's lack of support for the
-    // position: fixed style.
-    //
-    if (!('maxHeight' in document.body.style)) {
-        function modalsize() {
-            var top = document.documentElement.scrollTop;
-            var winsize = document.documentElement.offsetHeight;
-            var docsize = document.documentElement.scrollHeight;
-            shade.style.height = Math.max(winsize, docsize) + 'px';
-            modal.style.top = top + Math.floor(winsize / 3) + 'px';
-        };
-        modal.style.position = shade.style.position = 'absolute';
-        window.onscroll = window.onresize = modalsize;
-        modalsize();
-    }
 
     var jsondata = {
         "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
@@ -262,6 +228,35 @@
         ]
     };
 
+    var modal = document.getElementById('modal');
+    var shade = document.getElementById('shade');
+    document.getElementById('close').onclick = function () {
+        modal.style.display = shade.style.display = 'none';
+    };
+
+    // This code is a workaround for IE6's lack of support for the
+    // position: fixed style.
+	//
+	//if (!('maxHeight' in document.body.style)) {
+	//	//function modalsize() {
+	//		var top = document.documentElement.scrollTop;
+	//		var winsize = document.documentElement.offsetHeight;
+	//		var docsize = document.documentElement.scrollHeight;
+	//		shade.style.height = Math.max(winsize, docsize) + 'px';
+	//		modal.style.top = top + Math.floor(winsize / 3) + 'px';
+	//	};
+	//	modal.style.position = shade.style.position = 'absolute';
+	//	window.onscroll = window.onresize = modalsize;
+	//	modalsize();
+	//}
+
+    function ShowModal() {
+        let jsonarea= document.getElementById("jsonarea");
+        jsonarea.value = JSON.stringify(jsondata, undefined, 4);
+        modal.style.display = shade.style.display = 'block';
+        //modal.textarea = "<div class='inner'>" + JSON.stringify(jsondata) + "</div>" + "<br>";
+    };
+
     var ResourceNameMap = new Map();
     var dependencyMap = new Map();
     function buildDependency(parent, child) {
@@ -285,8 +280,8 @@
             group.attr({draggable: "true"});
             group.attr({ className: "canvasblock" });
             //group.addClass('group');
-            let imgdiv = '<div>Virtual' + blocktype + '<img id="' + imageid + '" src="./assets/' + blocktype + '.png" class="imgclass"/></div>';
-            imgdiv += '<div id="myModal" class="modal" > <div class="modal-content" > <span class="close" >& times; </span><div id="' + blocktype + 'json"></div > </div></div > ';
+            let imgdiv = '<div>Virtual' + blocktype + '<img id="' + imageid + '" src="./assets/' + blocktype + '.png" draggable="false" (dragstart)="false;" class="imgclass"/></div>';
+            //imgdiv += '<div id="myModal" class="modal" > <div class="modal-content" > <span class="close" >& times; </span><div id="' + blocktype + 'json"></div > </div></div > ';
             group.html(imgdiv);
             group.bind("dragstart", function(ev){drag(ev);});
             $("#canvas").append(group);
@@ -395,9 +390,11 @@
         }
     }
 
-    function submitForm() {
+    function ShowTopology() {
         let sid = document.getElementById("sid").value;
         let rg = document.getElementById("rg").value;
+        //replaceSubscriptionAndResGroups(sid, rg);
+        ShowModal();
     }
 
     function replaceSubscriptionAndResGroups(sid, rg) {
@@ -413,10 +410,6 @@
         jsondata.resources[2].dependsOn = [res];
     }
 
-    function displayArmTemplate()
-    {
-
-    }
     /*
     var modal = document.getElementById("myModal");
     var btn = document.getElementById("wan1");
@@ -444,7 +437,7 @@
         const s = params.get("sid");
         const o = params.get("rg");
         var div = document.getElementById(name);
-        replaceSubscriptionAndResGroups(s, o);
-        div.innerHTML = "<div class='inner'>" + JSON.stringify(jsondata) + "</div>" + "<br>";
+
+
     }
 </script>
