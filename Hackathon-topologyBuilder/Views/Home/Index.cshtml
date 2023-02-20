@@ -48,8 +48,6 @@
         background-color: #ffffff;
         text-align: center;
         border: 3px solid #d3d3d3;
-        resize: both;
-        overflow: auto;
     }
 
    
@@ -278,7 +276,7 @@
             var group=$(document.createElement('div'));
             group.attr({ id: blocktype + "div1" });
             group.attr({draggable: "true"});
-            group.attr({ className: "canvasblock" });
+            group.attr({ class : "canvasblock" });
             //group.addClass('group');
             let imgdiv = '<div>Virtual' + blocktype + '<img id="' + imageid + '" src="./assets/' + blocktype + '.png" draggable="false" (dragstart)="false;" class="imgclass"/></div>';
             //imgdiv += '<div id="myModal" class="modal" > <div class="modal-content" > <span class="close" >& times; </span><div id="' + blocktype + 'json"></div > </div></div > ';
