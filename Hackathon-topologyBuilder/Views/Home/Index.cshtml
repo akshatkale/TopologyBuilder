@@ -232,22 +232,6 @@
         modal.style.display = shade.style.display = 'none';
     };
 
-    // This code is a workaround for IE6's lack of support for the
-    // position: fixed style.
-	//
-	//if (!('maxHeight' in document.body.style)) {
-	//	//function modalsize() {
-	//		var top = document.documentElement.scrollTop;
-	//		var winsize = document.documentElement.offsetHeight;
-	//		var docsize = document.documentElement.scrollHeight;
-	//		shade.style.height = Math.max(winsize, docsize) + 'px';
-	//		modal.style.top = top + Math.floor(winsize / 3) + 'px';
-	//	};
-	//	modal.style.position = shade.style.position = 'absolute';
-	//	window.onscroll = window.onresize = modalsize;
-	//	modalsize();
-	//}
-
     function ShowModal() {
         let jsonarea= document.getElementById("jsonarea");
         jsonarea.value = JSON.stringify(jsondata, undefined, 4);
@@ -417,26 +401,4 @@
         jsondata.resources[2].dependsOn = [res];
     }
 
-    /*
-    var modal = document.getElementById("myModal");
-    var btn = document.getElementById("wan1");
-    var span = document.getElementsByClassName("close")[0];
-    btn.onclick = function () {
-        modal.style.display = "block";
-        load("wanjson");
-    }
-    span.onclick = function () {
-        modal.style.display = "none";
-    }
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-    var hubbtn = document.getElementById("hub");
-    hubbtn.onclick = function () {
-        modal.style.display = "block";
-        load("hubjson");
-    }
-    */
 </script>
