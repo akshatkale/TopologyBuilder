@@ -14,6 +14,8 @@
         left: 0;
         border: 1px solid #aaaaaa;
         position: fixed;
+        resize: both;
+        overflow: auto;
     }
 
     #StageTable {
@@ -39,6 +41,8 @@
     {
         width: 50px;
         height: 50px;
+        resize: both;
+        overflow: auto;
     }
 
     .canvasblock {
@@ -48,6 +52,8 @@
         background-color: #ffffff;
         text-align: center;
         border: 3px solid #d3d3d3;
+        resize: both;
+        overflow: auto;
     }
 
    
@@ -119,7 +125,7 @@
             <tr>
                 <td>VNG</td>
                 <td>
-                    <img id="vng" src="./assets/vng.png" class="imgclass" ondblclick="addcanvasblock('vng')"/>
+                    <img id="vng" src="./assets/vng.png" class="imgclass" ondblclick="addcanvasblock('Vng')"/>
                 </td>
             </tr>
 			<tr>
@@ -231,6 +237,7 @@
     var shade = document.getElementById('shade');
     var hubtotal = 0;
     var wantotal = 0;
+    var vngtotal = 0;
     var HubNames = [];
     var WanNames = [];
     var HubsWanNames = [];
@@ -251,10 +258,11 @@
     }
 
     //var line = new LeaderLine(document.getElementById('wan'), document.getElementById('hub'));
-    function inputResourceName(data) {
+    function inputResourceName(divname) {
         let resourceName = prompt("Please enter Resource Name:");
         if (resourceName != null) {
-            ResourceNameMap.set(document.getElementById(data).id, resourceName);
+            ResourceNameMap.set(divname, resourceName);
+            return resourceName;
         }
     }
 
@@ -268,12 +276,17 @@
         {
             resourcenum = ++hubtotal;
         }
+        else if (blocktype == "Vng")
+        {
+            resourcenum = ++vngtotal;
+        }
 
-		if (blocktype == "Wan" || blocktype == "Hub")
+		if (blocktype == "Wan" || blocktype == "Hub" || blocktype == "Vng")
 		{
             let imageid = blocktype + resourcenum
-            let strname = 'Virtual' + blocktype + resourcenum ;
             let divname = blocktype + "div" + resourcenum;
+            //let strname = 'Virtual' + blocktype + resourcenum ;
+            let strname = inputResourceName(divname);
             var group=$(document.createElement('div'));
             group.attr({ id: divname });
             group.attr({ name: strname });
@@ -410,6 +423,10 @@
             masterjsondata.resources.push(tempHubtemplate);
 		}
         ShowModal();
+    }
+
+    function DeployTopology(){
+        alert("Deploying network topology!")
     }
 
     function replaceSubscriptionAndResGroups(uri, sid, rgName, resourceName) {
