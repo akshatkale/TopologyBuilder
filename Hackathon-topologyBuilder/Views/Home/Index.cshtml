@@ -169,42 +169,36 @@
 
 
 <script>
-
-    var jsondata = {
-        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-        "contentVersion": "1.0.0.0",
-        "parameters": {},
-        "resources": [
-            {
-                "apiVersion": "2019-09-01",
-                "location": "eastus2",
-                "name": "vragireddy_test",
-                "properties": {
-                    "virtualHubs": [],
-                    "vpnSites": [],
-                    "type": "Standard"
-                },
-                "type": "Microsoft.Network/virtualWans"
-            },
-            {
-                "type": "Microsoft.Network/virtualHubs",
-                "apiVersion": "2022-07-01",
-                "name": "vragireddy_test_hub",
-                "location": "eastus",
-                "tags": {},
-                "properties": {
-                    "addressPrefix": "10.12.13.0/24",
-                    "virtualWan": {
-                        "id": "/subscriptions/10a8c16e-acc9-4def-867c-a66c3d9238e6/resourceGroups/NaasTestGroup/providers/Microsoft.Network/virtualWans/vragireddy_test"
-                    },
-                    "sku": "Standard",
-                    "virtualRouterAutoScaleConfiguration": {
-                        "minCapacity": 2
-                    },
-                    "hubRoutingPreference": "ExpressRoute"
-                }
-            },
-            {
+	var wanTemplate = {
+		"apiVersion": "2019-09-01",
+		"location": "eastus2",
+        "name": "RWanName",
+		"properties": {
+			"virtualHubs": [],
+			"vpnSites": [],
+			"type": "Standard"
+		},
+		"type": "Microsoft.Network/virtualWans"
+	};
+	var hubTemplate = {
+		"type": "Microsoft.Network/virtualHubs",
+		"apiVersion": "2022-07-01",
+		"name": "RHubName",
+		"location": "eastus",
+		"tags": {},
+		"properties": {
+			"addressPrefix": "10.12.13.0/24",
+			"virtualWan": {
+                "id": "/subscriptions/10a8c16e-acc9-4def-867c-a66c3d9238e6/resourceGroups/NaasTestGroup/providers/Microsoft.Network/virtualWans/RWanName"
+			},
+			"sku": "Standard",
+			"virtualRouterAutoScaleConfiguration": {
+				"minCapacity": 2
+			},
+			"hubRoutingPreference": "ExpressRoute"
+		}
+	};
+    var vngTemplate = {
                 "type": "Microsoft.Network/vpnGateways",
                 "apiVersion": "2022-01-01",
                 "name": "f485e136158d46a68131ac48bc52a14a-eastus-gw",
@@ -222,7 +216,14 @@
                         "asn": 65515
                     }
                 }
-            }
+            };
+
+
+    var masterjsondata = {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "resources": [
         ]
     };
 
@@ -230,13 +231,16 @@
     var shade = document.getElementById('shade');
     var hubtotal = 0;
     var wantotal = 0;
+    var HubNames = [];
+    var WanNames = [];
+    var HubsWanNames = [];
     document.getElementById('close').onclick = function () {
         modal.style.display = shade.style.display = 'none';
     };
 
     function ShowModal() {
         let jsonarea= document.getElementById("jsonarea");
-        jsonarea.value = JSON.stringify(jsondata, undefined, 4);
+        jsonarea.value = JSON.stringify(masterjsondata, undefined, 4);
         modal.style.display = shade.style.display = 'block';
     };
 
@@ -260,7 +264,7 @@
         {
             resourcenum = ++wantotal;
         }
-        if (blocktype == "Hub")
+        else if (blocktype == "Hub")
         {
             resourcenum = ++hubtotal;
         }
@@ -271,7 +275,8 @@
             let strname = 'Virtual' + blocktype + resourcenum ;
             let divname = blocktype + "div" + resourcenum;
             var group=$(document.createElement('div'));
-            group.attr({ id: blocktype + "div" + resourcenum });
+            group.attr({ id: divname });
+            group.attr({ name: strname });
             group.attr({draggable: "true"});
             group.attr({ class : "canvasblock" });
             let imgdiv = '<div>' + strname + '<img id="' + imageid + '" src="./assets/' + blocktype + '.png" draggable="false" (dragstart)="false;" class="imgclass"/></div>';
@@ -279,6 +284,15 @@
             group.bind("dragstart", function(ev){drag(ev);});
             $("#canvas").append(group);
             //dragElement(document.getElementById(divname));
+
+            if (blocktype == "Wan") {
+                WanNames.push(strname);
+            }
+            else if (blocktype == "Hub") {
+                HubNames.push(strname);
+                HubsWanNames.push("Empty");
+            }
+                        
 		}
     }
 
@@ -300,7 +314,16 @@
 		var data = event.dataTransfer.getData("text");
 		console.log("data target:" + document.getElementById(data));
 		if (event.target.nodeName == "DIV") {
-			event.target.appendChild(document.getElementById(data));
+            let hubdiv = document.getElementById(data);
+            let wandiv = event.target.id;
+            console.log("drop target id:" + event.target.id);
+            console.log("data target:" + hubdiv.id);
+            let position = hubdiv.id.search("div") + 3;
+            let pos = hubdiv.id.substr(position);
+            HubsWanNames[pos-1] = document.getElementById(wandiv).getAttribute("name");
+            console.log("hub pos:" + pos);
+            console.log("wan name:" + document.getElementById(wandiv).getAttribute("name"));
+            event.target.appendChild(hubdiv);
 		}
         /*
     var line = new LeaderLine(
@@ -314,10 +337,6 @@
         var data = event.dataTransfer.getData("text");
         if (event.target.nodeName !== "IMG") {
             event.target.appendChild(document.getElementById(data));
-
-            document.getElementById("demo").innerHTML = document.getElementById(data).id + " was removed from the topology.";
-
-            line.remove();
         }
     }
 
@@ -369,26 +388,37 @@
         let rg = document.getElementById("rg").value;
         if (sid=="")
         {
-            Alert("Subscription Id can't be empty");
+            alert("Subscription Id can't be empty");
+            return;
         }
-        if (rg == "") {
-            Alert("Resource group can't be empty");
-        }
-        replaceSubscriptionAndResGroups(sid, rg);
+		if (rg == "") {
+			alert("Resource group can't be empty");
+            return;
+		}
+        masterjsondata.resources = [];
+		for (var i = 0; i < WanNames.length; i++) {
+            console.log(WanNames[i]);
+            var tempWantemplate = wanTemplate;
+            tempWantemplate.name = WanNames[i];
+            masterjsondata.resources.push(tempWantemplate);
+		}
+		for (var i = 0; i < HubNames.length; i++) {
+            console.log(HubNames[i]);
+            var tempHubtemplate = hubTemplate;
+            tempHubtemplate.name = HubNames[i];
+            tempHubtemplate.properties.virtualWan.id = replaceSubscriptionAndResGroups(tempHubtemplate.properties.virtualWan.id, sid, rg, HubsWanNames[i]);
+            masterjsondata.resources.push(tempHubtemplate);
+		}
         ShowModal();
     }
 
-    function replaceSubscriptionAndResGroups(sid, rg) {
-        let str = jsondata.resources[1].properties.virtualWan.id;
-        const parts = str.split('/');
-        const subscriptionIndex = parts.indexOf('subscriptions');
-        const resourceGroupIndex = parts.indexOf('resourceGroups');
-        parts[subscriptionIndex + 1] = sid;
-        parts[resourceGroupIndex + 1] = rg;
+    function replaceSubscriptionAndResGroups(uri, sid, rgName, resourceName) {
+        const parts = uri.split('/');
+        parts[2] = sid;
+        parts[4] = rgName;
+        parts[8] = resourceName;
         let res = parts.join('/');
-        jsondata.resources[1].properties.virtualWan.id = res;
-        jsondata.resources[2].properties.virtualHub.id = res;
-        jsondata.resources[2].dependsOn = [res];
+        return res;
     }
 
 </script>
