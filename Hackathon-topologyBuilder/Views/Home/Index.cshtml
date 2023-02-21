@@ -77,8 +77,10 @@
         z-index: 101;
         top: 10%;
         left: 10%;
-        width: 30%; /* Full width */
-        height: 30%; /* Full height */
+        width: 60%; /* Full width */
+        height: 60%; /* Full height */
+        resize: both;
+        overflow: auto;
     }
 
     #shade {
@@ -165,8 +167,8 @@
     <div id="shade"></div>
 
     <div id="modal">
-        <button id="close" style="top:70%;right:70%">X</button>
-        <textarea id="jsonarea" rows="20" cols="100"></textarea>
+        <button id="close" style="top:80%;right:80%">X</button>
+        <textarea id="jsonarea" rows="100" cols="150"></textarea>
         <br />
     </div>
 
@@ -179,6 +181,7 @@
 		"apiVersion": "2019-09-01",
 		"location": "eastus2",
         "name": "RWanName",
+        "id": "/subscriptions/83704d68-d560-4c67-b1c7-12404db89dc3/resourceGroups/sliu_vwantest/providers/Microsoft.Network/virtualWans/sliu_wan1",
 		"properties": {
 			"virtualHubs": [],
 			"vpnSites": [],
@@ -190,7 +193,11 @@
 		"type": "Microsoft.Network/virtualHubs",
 		"apiVersion": "2022-07-01",
 		"name": "RHubName",
+        "id": "/subscriptions/10a8c16e-acc9-4def-867c-a66c3d9238e6/resourceGroups/NaasTestGroup/providers/Microsoft.Network/virtualHubs/vragireddy_test_hub",
 		"location": "eastus",
+        "dependsOn": [
+            "/subscriptions/10a8c16e-acc9-4def-867c-a66c3d9238e6/resourceGroups/NaasTestGroup/providers/Microsoft.Network/virtualWans/sliu_wan1"
+        ],
 		"tags": {},
 		"properties": {
 			"addressPrefix": "10.12.13.0/24",
@@ -208,6 +215,7 @@
                 "type": "Microsoft.Network/vpnGateways",
                 "apiVersion": "2022-01-01",
                 "name": "f485e136158d46a68131ac48bc52a14a-eastus-gw",
+                "id": "/subscriptions/83704d68-d560-4c67-b1c7-12404db89dc3/resourceGroups/sliu_vwantest/providers/Microsoft.Network/vpnGateways/abd3e14b6fff4a349c4c23089e4bdc93-eastus-gw",
                 "location": "eastus",
                 "dependsOn": [
                     "/subscriptions/10a8c16e-acc9-4def-867c-a66c3d9238e6/resourceGroups/NaasTestGroup/providers/Microsoft.Network/virtualHubs/vragireddy_test_hub"
@@ -233,6 +241,10 @@
         ]
     };
 
+    var wanUriTemplate = "/subscriptions/83704d68-d560-4c67-b1c7-12404db89dc3/resourceGroups/sliu_vwantest/providers/Microsoft.Network/virtualWans/sliu_wan1";
+    var hubUriTemplate = "/subscriptions/83704d68-d560-4c67-b1c7-12404db89dc3/resourceGroups/sliu_vwantest/providers/Microsoft.Network/virtualHubs/sliu_wan1";
+    var vngUriTemplate = "/subscriptions/83704d68-d560-4c67-b1c7-12404db89dc3/resourceGroups/sliu_vwantest/providers/Microsoft.Network/vpnGateways/abd3e14b6fff4a349c4c23089e4bdc93-eastus-gw";
+
     var modal = document.getElementById('modal');
     var shade = document.getElementById('shade');
     var hubtotal = 0;
@@ -240,6 +252,7 @@
     var vngtotal = 0;
     var HubNames = [];
     var WanNames = [];
+    var VngNames = [];
     var HubsWanNames = [];
     document.getElementById('close').onclick = function () {
         modal.style.display = shade.style.display = 'none';
@@ -252,9 +265,19 @@
     };
 
     var ResourceNameMap = new Map();
-    var dependencyMap = new Map();
+    var HubWanMap = new Map();
+    var VpnGatewayHubMap = new Map();
     function buildDependency(parent, child) {
-        dependenceMap.set(document.getElementById(child).id, document.getElementById(parent).id)
+        if (parent.startsWith("Wan")) {
+            console.log("parent name:" + document.getElementById(parent).getAttribute("name"));
+            console.log("child name:" + document.getElementById(child).getAttribute("name"));
+            HubWanMap.set(document.getElementById(child).getAttribute("name"), document.getElementById(parent).getAttribute("name"));
+        }
+        else if (parent.startsWith("Hub")) {
+            console.log("parent name:" + document.getElementById(parent).getAttribute("name"));
+            console.log("child name:" + document.getElementById(child).getAttribute("name"));
+            VpnGatewayHubMap.set(document.getElementById(child).getAttribute("name"), document.getElementById(parent).getAttribute("name"));
+        }
     }
 
     //var line = new LeaderLine(document.getElementById('wan'), document.getElementById('hub'));
@@ -305,6 +328,9 @@
                 HubNames.push(strname);
                 HubsWanNames.push("Empty");
             }
+            else if (blocktype == "Vng") {
+                VngNames.push(strname);
+            }
                         
 		}
     }
@@ -331,12 +357,15 @@
             let wandiv = event.target.id;
             console.log("drop target id:" + event.target.id);
             console.log("data target:" + hubdiv.id);
+            console.log("drop target name:" + document.getElementById(wandiv).getAttribute("name"));
+            console.log("data target name:" + document.getElementById(hubdiv.id).getAttribute("name"));
             let position = hubdiv.id.search("div") + 3;
             let pos = hubdiv.id.substr(position);
             HubsWanNames[pos-1] = document.getElementById(wandiv).getAttribute("name");
             console.log("hub pos:" + pos);
             console.log("wan name:" + document.getElementById(wandiv).getAttribute("name"));
             event.target.appendChild(hubdiv);
+            buildDependency(wandiv, hubdiv.id);
 		}
         /*
     var line = new LeaderLine(
@@ -408,25 +437,54 @@
 			alert("Resource group can't be empty");
             return;
 		}
+
         masterjsondata.resources = [];
 		for (var i = 0; i < WanNames.length; i++) {
-            console.log(WanNames[i]);
-            var tempWantemplate = wanTemplate;
+            console.log("WAN Name:" + WanNames[i]);
+            console.log("type:" + typeof (wanTemplate));
+            var tempWantemplate = JSON.parse(JSON.stringify(wanTemplate));
             tempWantemplate.name = WanNames[i];
+            tempWantemplate.id = replaceSubscriptionAndResGroups(wanUriTemplate, sid, rg, WanNames[i]);
+            var hubsIds = [];
+            HubWanMap.forEach((wanName, hubName) => {
+                console.log("wanName:" + wanName);
+                console.log("hubName:" + hubName);
+                if (wanName == WanNames[i]) {
+                    hubsIds.push(replaceSubscriptionAndResGroups(hubUriTemplate, sid, rg, hubName));
+                }});
+            tempWantemplate.properties.virtualHubs = hubsIds;
             masterjsondata.resources.push(tempWantemplate);
 		}
+
 		for (var i = 0; i < HubNames.length; i++) {
             console.log(HubNames[i]);
-            var tempHubtemplate = hubTemplate;
+            var tempHubtemplate = JSON.parse(JSON.stringify(hubTemplate));
             tempHubtemplate.name = HubNames[i];
-            tempHubtemplate.properties.virtualWan.id = replaceSubscriptionAndResGroups(tempHubtemplate.properties.virtualWan.id, sid, rg, HubsWanNames[i]);
+            tempHubtemplate.id = replaceSubscriptionAndResGroups(hubUriTemplate, sid, rg, HubNames[i]);
+            var dpOns = [];
+            dpOns.push(replaceSubscriptionAndResGroups(wanUriTemplate, sid, rg, HubWanMap.get(HubNames[i])));
+            tempHubtemplate.dependsOn = dpOns;
+            tempHubtemplate.properties.virtualWan.id = replaceSubscriptionAndResGroups(wanUriTemplate, sid, rg, HubWanMap.get(HubNames[i]));
             masterjsondata.resources.push(tempHubtemplate);
+		}
+
+        for (var i = 0; i < VngNames.length; i++) {
+            console.log(VngNames[i]);
+            var tempVngtemplate = JSON.parse(JSON.stringify(vngTemplate));
+            tempVngtemplate.name = VngNames[i];
+            tempVngtemplate.id = replaceSubscriptionAndResGroups(vngUriTemplate, sid, rg, VngNames[i]);
+            var dpOns = [];
+            dpOns.push(replaceSubscriptionAndResGroups(hubUriTemplate, sid, rg, VpnGatewayHubMap.get(VngNames[i])));
+            tempVngtemplate.dependsOn = dpOns;
+            tempVngtemplate.properties.virtualHub.id = replaceSubscriptionAndResGroups(hubUriTemplate, sid, rg, VpnGatewayHubMap.get(VngNames[i]));
+            masterjsondata.resources.push(tempVngtemplate);
 		}
         ShowModal();
     }
 
     function DeployTopology(){
-        alert("Deploying network topology!")
+        alert("Deploying network topology!");
+        // run powershell to deploy arm template
     }
 
     function replaceSubscriptionAndResGroups(uri, sid, rgName, resourceName) {
